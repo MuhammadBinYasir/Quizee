@@ -17,6 +17,7 @@ const page = async ({ params }: { params: { id: string } }) => {
     if (!quiz) { return "No Quiz Found"; }
 
     const user = await fetchUser({ clerkId: c_user?.id })
+    if(user == "no-user") return;
     if (quiz.userId._id.toString() != user.user._id.toString()) { return `unauthorized`; }
     const userData = {
         userId: user.user._id

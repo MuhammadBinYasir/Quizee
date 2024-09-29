@@ -55,6 +55,7 @@ export default async function RootLayout({
   const user = await currentUser();
   if (!user) redirect('/sign-in');
   const db_user = await fetchUser({ clerkId: user?.id })
+  if(db_user == "no-user") redirect('/onboarding');
   // await connectToDatabase();
   return (
     <div className="w-full h-screen">

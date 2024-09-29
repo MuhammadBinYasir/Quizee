@@ -39,7 +39,7 @@ export const fetchUser = async ({ clerkId }: { clerkId: string }) => {
     }
   }).exec();
   if (!user) {
-    throw new Error("User not found");
+    return "no-user"
   }
   const firstname = user.name?.split(' ')[0] ?? 'Unknown'; // Handles undefined name
 

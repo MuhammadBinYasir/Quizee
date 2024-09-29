@@ -12,6 +12,7 @@ const page = async () => {
     const c_user = await currentUser();
     if (!c_user) return;
     const fetchData = await fetchUser({ clerkId: c_user.id })
+    if(fetchData == "no-user") return;
 
     const data = fetchData.user.takens.map((taken: any) => ({
         id: taken.quizId._id,

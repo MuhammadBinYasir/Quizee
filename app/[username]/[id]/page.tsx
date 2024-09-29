@@ -14,6 +14,7 @@ const page = async ({ params }: { params: { username: string, id: string } }) =>
     const CuUser = await currentUser();
     if (!CuUser) redirect("/");
     const user = await fetchUser({ clerkId: CuUser.id })
+    if(user == "no-user") return;
     const takenQuiz = await hasTakenQuiz({
         userId: user.user._id,
         quizId: data._id,

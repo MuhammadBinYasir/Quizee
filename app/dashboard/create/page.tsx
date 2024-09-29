@@ -7,6 +7,7 @@ const page = async () => {
     const c_user = await currentUser();
     if (!c_user) return;
     const user = await fetchUser({ clerkId: c_user?.id })
+    if(user == "no-user") return;
     const userData = {
         userId: user.user._id
     }

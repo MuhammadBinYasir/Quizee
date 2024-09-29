@@ -2,15 +2,21 @@ import React from "react";
 import OnBoard from "@/components/forms/onBoard";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { fetchUser } from "@/lib/action/user.action";
 
 const page = async () => {
 
   const user = await currentUser()
   if (!user) redirect("/sign-in");
 
+  const db_user = await fetchUser({ clerkId: user.id })
+  if (db_user !== "no-user") {
+    redirect("/dashboard")
+  }
+
   const data = {
     username: user.username ?? "no-username",
-    image: user.imageUrl ?? "no-img",  
+    image: user.imageUrl ?? "no-img",
     email: user.emailAddresses?.[0]?.emailAddress ?? "no-email",
     clerkId: user.id ?? "no-id",
   };
