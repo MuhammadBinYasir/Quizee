@@ -25,7 +25,17 @@ import { createUser } from '@/lib/action/user.action'
 import { redirect, useRouter } from 'next/navigation'
 
 interface type {
-    user: { image: string, username: string, email: string, clerkId: string; };
+    user: {
+        image: string,
+        username: string,
+        email: string,
+        clerkId: string,
+        name?: string,
+        desc?: string,
+        yt?: string,
+        lkd?: string,
+        id?: string
+    };
 }
 
 const OnBoard = ({ user }: type) => {
@@ -49,11 +59,11 @@ const OnBoard = ({ user }: type) => {
     const form = useForm<z.infer<typeof userZod>>({
         resolver: zodResolver(userZod),
         defaultValues: {
-            name: "",
-            desc: "",
+            name: user.name ? user.name : "",
+            desc: user.desc ? user.desc : "",
             image: user.image,
-            youtube: "",
-            linkedin: ""
+            youtube: user.yt ? user.yt : "",
+            linkedin: user.lkd ? user.lkd : ""
         },
     })
 
@@ -72,19 +82,25 @@ const OnBoard = ({ user }: type) => {
             }
         }
 
-        await createUser({
-            username: user.username,
-            name: values.name,
-            email: user.email,
-            image: values.image,
-            desc: values.desc,
-            yt: values.youtube,
-            lkd: values.linkedin,
-            clerkId: user.clerkId,
-        })
+        if (user.name && user.desc) {
+            setLoading(false);
+            // router.push("/dashboard")
+            console.log("EDIT")
+        } else {
+            await createUser({
+                username: user.username,
+                name: values.name,
+                email: user.email,
+                image: values.image,
+                desc: values.desc,
+                yt: values.youtube,
+                lkd: values.linkedin,
+                clerkId: user.clerkId,
+            })
 
-        setLoading(false);
-        router.push("/dashboard")
+            setLoading(false);
+            router.push("/dashboard")
+        }
 
     }
 
@@ -209,11 +225,11 @@ const OnBoard = ({ user }: type) => {
                             <div className="px-3 cursor-pointer py-2 bg-slate-100 text-slate-900 rounded text-sm" onClick={() => handlePage('decrement')}>Previous</div> : null}
 
                         {page != 3 ? <div onClick={() => handlePage('increment')} className="px-3 cursor-pointer py-2 bg-slate-900 text-slate-100 rounded text-sm ml-auto">Next</div> :
-                            loading ? 
-                            <Button disabled>
-                                <LuLoader2 className="animate-spin mr-2"/>
-                                Please wait
-                            </Button> : <Button>Submit</Button>
+                            loading ?
+                                <Button disabled>
+                                    <LuLoader2 className="animate-spin mr-2" />
+                                    Please wait
+                                </Button> : <Button>Submit</Button>
                         }
                     </div>
                 </form>
