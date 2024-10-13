@@ -7,9 +7,9 @@ import { MdSportsCricket } from "react-icons/md";
 import { RiComputerFill } from "react-icons/ri";
 import { FaGraduationCap, FaBook } from "react-icons/fa";
 import { FaGamepad } from "react-icons/fa";
-import { truncateText } from '@/lib/utils';
+import { checkAvg, truncateText } from '@/lib/utils';
 
-const QuizCard = ({
+const QuizCard = async ({
     title, desc, category, visibility, attempt, ratio, total, id
 }: {
     title: string;
@@ -17,7 +17,7 @@ const QuizCard = ({
     category: string;
     visibility: string;
     attempt: number;
-    ratio: number;
+    ratio: any[];
     total: number;
     id: mongoose.Schema.Types.ObjectId;
 }) => {
@@ -31,6 +31,7 @@ const QuizCard = ({
     };
 
     const icon = categoryIcons[category] || null;
+    const ratios = await checkAvg(ratio)
 
     return (
         <div className="rounded overflow-hidden bg-white shadow-md">
@@ -51,7 +52,7 @@ const QuizCard = ({
                     <div className="flex gap-2 items-center text-xs text-slate-700">
                         <FaPercentage />
                         <div className="text-center">
-                            <p>{ratio}</p>
+                            <p>{ratios.toFixed(2)}%</p>
                             <p>Avg. Result</p>
                         </div>
                     </div>

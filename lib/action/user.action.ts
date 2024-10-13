@@ -110,3 +110,40 @@ export const fetchUserWithUsername = async ({ username }: { username: string }) 
 
   return { firstname, user: user.toObject() };
 };
+
+export const updateUser = async ({
+  userId,
+  name,
+  image,
+  desc,
+  yt,
+  lkd
+}:{
+  userId: string;
+  name: string;
+  image: string;
+  desc: string;
+  yt: string;
+  lkd: string;
+}) => {
+  
+  await connectToDatabase()
+  try {
+  const res = await User.findByIdAndUpdate(userId, {
+    name,
+    img: image,
+    desc,
+    yt,
+    lkd
+  });
+
+  if(res){
+    return "ok"
+  }
+
+}catch (error) {
+  console.error("Error: ", error);
+  return;
+}
+
+}
