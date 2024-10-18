@@ -20,7 +20,7 @@ Created With ❤️ using:
 
    ```bash
    git clone https://github.com/MuhammadBinYasir/Quizee.git
-   cd Shortify
+   cd Quizee
 
 2. **Install Dependencies**
 

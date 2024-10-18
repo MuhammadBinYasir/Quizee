@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from '@/components/ui/textarea'
 import { useUploadThing } from '@/lib/uploadthing'
 import { isBase64Image } from '@/lib/utils'
-import { createUser } from '@/lib/action/user.action'
+import { createUser, updateUser } from '@/lib/action/user.action'
 import { redirect, useRouter } from 'next/navigation'
 
 interface type {
@@ -83,9 +83,18 @@ const OnBoard = ({ user }: type) => {
         }
 
         if (user.name && user.desc) {
-            setLoading(false);
-            // router.push("/dashboard")
-            console.log("EDIT")
+            const update = await updateUser({
+                name: values.name,
+                image: values.image,
+                desc: values.desc,
+                yt: values.youtube,
+                lkd: values.linkedin,
+                userId: user.id ? user.id : "",
+            })
+            if (update == "ok") {
+                setLoading(false);
+                router.push("/dashboard")
+            }
         } else {
             await createUser({
                 username: user.username,

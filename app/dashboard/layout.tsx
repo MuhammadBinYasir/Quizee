@@ -39,6 +39,7 @@ import {
 import { fetchUser } from "@/lib/action/user.action";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { fetchQuiz } from "@/lib/action/quiz.action";
 
 
 
@@ -55,12 +56,13 @@ export default async function RootLayout({
   const user = await currentUser();
   if (!user) redirect('/sign-in');
   const db_user = await fetchUser({ clerkId: user?.id })
-  if(db_user == "no-user") redirect('/onboarding');
+  if (db_user == "no-user") redirect('/onboarding');
+
   // await connectToDatabase();
   return (
     <div className="w-full h-screen">
       <div className="w-full h-16 flex gap-3 items-center justify-between px-10">
-        <h4 className="text-lg text-primaryColor font-extrabold">Quizee</h4>
+        <Link href="/dashboard" className="text-lg text-primaryColor font-extrabold">Quizee</Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <img src={db_user.user.img} className="w-8 h-8 rounded-full" />
@@ -85,10 +87,12 @@ export default async function RootLayout({
                   <span>Profile</span>
                 </DropdownMenuItem>
               </Link>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
+              <Link href={`/dashboard/setting`}>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -113,7 +117,7 @@ export default async function RootLayout({
                 <span>Support</span>
               </DropdownMenuItem>
             </Link>
-            <Link href="#">
+            <Link href="https://github.com/MuhammadBinYasir/Quizee">
               <DropdownMenuItem>
                 <Github className="mr-2 h-4 w-4" />
                 <span>Rate on Github</span>

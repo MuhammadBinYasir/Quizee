@@ -13,7 +13,7 @@ import { RiComputerFill } from "react-icons/ri";
 import { FaGraduationCap, FaBook } from "react-icons/fa";
 import { FaGamepad } from "react-icons/fa";
 import Link from 'next/link';
-import { FaRegQuestionCircle, FaRegUserCircle, FaPercentage, FaCheckCircle, FaEye, FaCommentAlt } from "react-icons/fa";
+import { FaRegQuestionCircle, FaRegUserCircle, FaPercentage, FaCheckCircle, FaEye, FaCommentAlt, FaYoutube, FaLinkedinIn} from "react-icons/fa";
 import { truncateText } from '@/lib/utils';
 
 const page = async ({ params }: { params: { username: string; } }) => {
@@ -30,7 +30,7 @@ const page = async ({ params }: { params: { username: string; } }) => {
     return (
         <>
             <div className="w-full h-16 flex gap-3 items-center justify-between px-10">
-                <h4 className="text-lg text-primaryColor font-extrabold">Quizee</h4>
+                <Link href="/dashboard" className="text-lg text-primaryColor font-extrabold">Quizee</Link>
             </div>
             {user == "404" ? "No User Found" : (
                 <div className="p-6 overflow-hidden">
@@ -40,6 +40,10 @@ const page = async ({ params }: { params: { username: string; } }) => {
                             <h4 className="text-base text-slate-900">{user.user.name}</h4>
                             <p className="text-xs text-neutral-500">@{user.user.username}</p>
                             <p className="text-sm mt-2 text-slate-700">{user.user.desc}</p>
+                            <div className="mt-4 flex items-center gap-3 flex-wrap text-xs text-slate-900">
+                                <Link href="#" className="bg-slate-100 flex rounded-full items-center gap-1 px-2 py-1"><FaYoutube />/{user.user.yt}</Link>
+                                <Link href="#" className="bg-slate-100 flex rounded-full items-center gap-1 px-2 py-1"><FaLinkedinIn />/{user.user.lkd}</Link>
+                            </div>
                             <div className="mt-4 flex items-center flex-wrap gap-3 text-xs text-white">
                                 <div className="px-3 py-2 bg-primaryColor rounded">{user.user.quiz.length} Quizzes Created</div>
                                 <div className="px-3 py-2 bg-primaryColor rounded">{user.user.takens.length} Quizzes Taken</div>
