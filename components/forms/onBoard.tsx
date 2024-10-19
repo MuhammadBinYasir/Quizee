@@ -233,7 +233,7 @@ const OnBoard = ({ user }: type) => {
                         {page != 1 ?
                             <div className="px-3 cursor-pointer py-2 bg-slate-100 text-slate-900 rounded text-sm" onClick={() => handlePage('decrement')}>Previous</div> : null}
 
-                        {page != 3 ? <div onClick={() => handlePage('increment')} className="px-3 cursor-pointer py-2 bg-slate-900 text-slate-100 rounded text-sm ml-auto">Next</div> :
+                        {page != 3 ? <div onClick={() => handlePage('increment')} className="px-3 cursor-pointer py-2 bg-sky-800 text-slate-100 rounded text-sm ml-auto">Next</div> :
                             loading ?
                                 <Button disabled>
                                     <LuLoader2 className="animate-spin mr-2" />

@@ -101,7 +101,10 @@ export const fetchUserWithUsername = async ({ username }: { username: string }) 
   }).populate({
     path: "takens.quizId",
     model: QuizModel,
-    select: 'title'
+    populate: {
+      path: 'userId',
+      model: User,
+    }
   }).exec();
   if (!user) {
     return "404"

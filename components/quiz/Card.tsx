@@ -10,7 +10,7 @@ import { FaGamepad } from "react-icons/fa";
 import { checkAvg, truncateText } from '@/lib/utils';
 
 const QuizCard = async ({
-    title, desc, category, visibility, attempt, ratio, total, id
+    title, desc, category, visibility, attempt, ratio, total, id, type
 }: {
     title: string;
     desc: string;
@@ -20,6 +20,7 @@ const QuizCard = async ({
     ratio: any[];
     total: number;
     id: mongoose.Schema.Types.ObjectId;
+    type?: string;
 }) => {
     const categoryIcons: { [key: string]: JSX.Element } = {
         "Entertainment": <HiEmojiHappy />,
@@ -38,7 +39,7 @@ const QuizCard = async ({
             <div className="w-full h-28 bg-primaryColor text-white flex items-center text-3xl justify-center">{icon}
             </div>
             <div className="m-4 text-slate-900">
-                <Link href={`/dashboard/edit/${id}`} className='text-base font-bold flex gap-2 items-center'>{title} {visibility == "public" && <FaCheckCircle className="text-primaryColor" />} </Link>
+                <Link href={type ? type : `/dashboard/edit/${id}`} className='text-base font-bold flex gap-2 items-center'>{title} {visibility == "public" && <FaCheckCircle className="text-primaryColor" />} </Link>
                 <p className="text-xs text-slate-700">{truncateText(desc, 80)}</p>
 
                 <div className="mt-4 flex flex-wrap gap-2 items-center">

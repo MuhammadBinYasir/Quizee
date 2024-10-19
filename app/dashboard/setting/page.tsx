@@ -1,4 +1,5 @@
 import OnBoard from '@/components/forms/onBoard'
+import Dashboardlay from '@/components/reusable/Dashboardlay';
 import { fetchUser } from '@/lib/action/user.action';
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation';
@@ -21,8 +22,9 @@ const page = async () => {
         id: dbUser.user._id
     };
     return (
-        <div className="flex items-center w-full mx-auto mt-5 justify-center">
-            <div className="w-[500px] max-w-full p-5 bg-white shadow rounded">
+       <Dashboardlay title='Edit Profile' desc='Would Like Like To Update About Yourself? If Yes, Then Update it Now.'>
+         <div className="flex items-center h-full mt-5 justify-center">
+            <div className="w-[500px] max-w-full mt-5 p-5 bg-white shadow-lg rounded">
                 <div className="pb-4 border-b border-b-slate-100">
                     <h4 className='text-lg font-bold text-slate-900'>Edit Profile</h4>
                     <p className='text-sm text-slate-700 mt-3'>Update the details and press 'Update' to continue.</p>
@@ -31,6 +33,7 @@ const page = async () => {
                 <OnBoard user={data} />
             </div >
         </div>
+       </Dashboardlay>
     )
 }
 
