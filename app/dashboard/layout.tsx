@@ -40,6 +40,7 @@ import { fetchUser } from "@/lib/action/user.action";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { fetchQuiz } from "@/lib/action/quiz.action";
+import Logo from "@/components/reusable/Logo";
 
 
 
@@ -61,8 +62,8 @@ export default async function RootLayout({
   // await connectToDatabase();
   return (
     <div className="w-full h-screen">
-      <div className="w-full h-16 flex gap-3 items-center justify-between px-10">
-        <Link href="/dashboard" className="text-lg text-primaryColor font-extrabold">Quizee</Link>
+      <div className="w-full h-16 flex gap-3 items-center justify-between px-10 border-b border-b-slate-100">
+        <Logo href="/dashboard" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <img src={db_user.user.img} className="w-8 h-8 rounded-full" />

@@ -33,3 +33,21 @@ export const checkAvg = (data: any[]) => {
 
   return averagePercentage;
 };
+
+export const checkUserAvg = (data: any[]) => {
+  let totalMarks = 0;
+  let obtainedMarks = 0;
+  let totalEntries = 0;
+  let obtainedPercentage = 0;
+
+  // Flatten the data and aggregate totals
+  data.forEach(userEntries => {
+    totalEntries++;
+    obtainedPercentage += (userEntries.obtained / userEntries.total)*100
+  });
+
+  // Calculate the average percentage
+  const averagePercentage = totalEntries > 0 ? (obtainedPercentage / (totalEntries)) : 0;
+
+  return averagePercentage;
+};

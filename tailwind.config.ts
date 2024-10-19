@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
-  			primaryColor: '#049A8F'
+  			primaryColor: '#075985'
   		},
   		keyframes: {
   			'accordion-down': {

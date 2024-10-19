@@ -1,4 +1,7 @@
+import Logo from "@/components/reusable/Logo";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { FaQuestion } from "react-icons/fa";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -11,6 +14,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-primaryColor py-10">{children}</div>
+    <div className="w-full min-h-screen flex items-center justify-center bg-primaryColor py-10">
+      <div className="absolute top-10 left-10">
+        <Link href="/" className="text-lg font-bold text-white flex items-center gap-2">
+            <div className="w-8 h-8 text-base flex items-center justify-center bg-white rounded-full text-sky-800">
+                <FaQuestion />
+            </div>
+            Quizee
+        </Link>
+        </div>
+      {children}</div>
   );
 }

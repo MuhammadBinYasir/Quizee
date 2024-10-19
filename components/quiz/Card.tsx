@@ -34,28 +34,17 @@ const QuizCard = async ({
     const ratios = await checkAvg(ratio)
 
     return (
-        <div className="rounded overflow-hidden bg-white shadow-md">
-            <div className="w-full h-28 bg-primaryColor text-white flex items-center text-3xl justify-center">{icon}</div>
+        <div className="rounded overflow-hidden bg-white shadow-lg">
+            <div className="w-full h-28 bg-primaryColor text-white flex items-center text-3xl justify-center">{icon}
+            </div>
             <div className="m-4 text-slate-900">
                 <Link href={`/dashboard/edit/${id}`} className='text-base font-bold flex gap-2 items-center'>{title} {visibility == "public" && <FaCheckCircle className="text-primaryColor" />} </Link>
-                <p className="text-xs text-slate-700">{truncateText(desc, 50)}</p>
-                <div className="flex gap-2 items-center text-xs text-slate-600 mt-1"><FaRegQuestionCircle /> {total} Questions</div>
+                <p className="text-xs text-slate-700">{truncateText(desc, 80)}</p>
 
-                <div className="grid grid-cols-2 mt-3 gap-3">
-                    <div className="flex gap-2 items-center text-xs text-slate-700 border-r border-r-slate-100">
-                        <FaRegUserCircle />
-                        <div className="text-center">
-                            <p>{attempt}</p>
-                            <p>Attempts</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 items-center text-xs text-slate-700">
-                        <FaPercentage />
-                        <div className="text-center">
-                            <p>{ratios.toFixed(2)}%</p>
-                            <p>Avg. Result</p>
-                        </div>
-                    </div>
+                <div className="mt-4 flex flex-wrap gap-2 items-center">
+                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaRegQuestionCircle /> </div> {total} Questions</div>
+                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaRegUserCircle /> </div> {attempt} Attempts</div>
+                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2 mt-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaPercentage /> </div> {ratios.toFixed(2)}% Avg. Result</div>
                 </div>
 
             </div>
