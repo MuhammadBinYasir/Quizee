@@ -3,6 +3,13 @@ import React from 'react'
 import QuizCard from '../quiz/Card';
 
 const TopQuizzes = async () => {
+    
+//   const fetchPromise = await new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve("Data fetched successfully!"); // Resolve the promise after 5 seconds
+//     }, 5000); // Simulate a 5-second fetch
+//   });
+//   console.log(fetchPromise);
     const quizzes = await TopQuiz();
     if (!quizzes) return;
     return (
