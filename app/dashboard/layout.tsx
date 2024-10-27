@@ -41,6 +41,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { fetchQuiz } from "@/lib/action/quiz.action";
 import Logo from "@/components/reusable/Logo";
+import React, { Suspense } from "react";
+import LoadBar from "@/components/reusable/LoadBar";
+import Loading from "../loading";
 
 
 
@@ -137,7 +140,9 @@ export default async function RootLayout({
         </DropdownMenu>
 
       </div>
-      {children}
+      <Suspense fallback={<LoadBar />}>
+        {children}
+      </Suspense>
     </div>
   );
 }

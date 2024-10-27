@@ -3,34 +3,30 @@ import { fetchUser } from "@/lib/action/user.action";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
-import { FaChartBar, FaGithub, FaLock, FaPen, FaQuestion, FaUser } from "react-icons/fa"
+import { FaChartBar, FaFacebookF, FaGithub, FaLock, FaPen, FaQuestion, FaStar, FaUser } from "react-icons/fa"
 import { MdQuiz } from "react-icons/md";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Suspense } from "react";
+import HeaderButton from "@/components/HomePage/HeaderButton";
+import TopQuizzes from "@/components/HomePage/TopQuizzes";
 
 export default async function Home() {
-  const checkUser = async () => {
-    const clerk = await currentUser();
-    if (clerk) {
-      const user = await fetchUser({ clerkId: clerk.id })
-      if (user != "no-user") {
-        return "ok"
-      }
-    }
-  }
-  const res = await checkUser();
+
   return (
     <div className="bg-sky-50">
       <div className="w-full min-h-screen">
         <div className="w-4/5 min-h-screen mx-auto py-8 flex flex-col justify-between">
           <div className="flex justify-between">
-            <Logo href="/"/>
-            {res != "ok" ? (
-              <div className="flex items-center gap-3">
-                <Link href="/sign-in" className="w-28 h-10 sm:flex hidden items-center bg-sky-200 text-sky-800 justify-center rounded-full text-base">Login</Link>
-                <Link href="/sign-up" className="w-28 h-10 flex items-center bg-sky-800 text-white justify-center rounded-full text-base">Sign up</Link>
-              </div>
-            ) : (
-              <Link href="/dashboard" className="min-w-32 h-10 flex items-center bg-sky-800 text-white justify-center rounded-full text-base">Dashboard</Link>
-            )}
+            <Logo href="/" />
+            <Suspense>
+              <HeaderButton />
+            </Suspense>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 mt-2 items-center">
             <div>
@@ -100,6 +96,21 @@ export default async function Home() {
           </div>
 
         </div>
+      </div>
+
+      <div className="w-4/5 mx-auto min-h-screen py-10">
+        <div className="space-y-2 md:w-1/2 w-full">
+          <h4 className="text-2xl sm:text-4xl font-bold"><b className="bg-gradient-to-r from-slate-800 via-sky-900 to-sky-800 bg-clip-text text-transparent">Top Quizzes</b></h4>
+          <p className="text-sm hidden sm:block text-slate-800">Dive into our collection of top quizzes, where knowledge meets fun! Whether you’re looking to test your skills, challenge your friends, or simply learn something new, these popular quizzes have something for everyone.</p>
+        </div>
+        <Suspense>
+          <TopQuizzes />
+        </Suspense>
+      </div>
+
+     
+      <div className="w-full h-16 flex items-center justify-center px-2 text-sm text-primaryColor font-normal">
+        <p>&copy; Copyright 2024. All Rights Reservered By <b>Muhammad Bin Yasir</b> </p>
       </div>
     </div>
   );

@@ -205,7 +205,7 @@ const CreateQuiz = ({ user, data }: {
                         <Accordion type="single" collapsible className="w-full mt-5">
                             {fields.map((field, index) => (
 
-                                <AccordionItem value={field.id}>
+                                <AccordionItem value={field.id} key={index}>
                                     <AccordionTrigger>
                                         <>
                                             {form.watch('questions')[index]?.question || "Untitled Question"}

@@ -1,3 +1,4 @@
+import QuizCardLoading from '@/components/loading/Card';
 import QuizCard from '@/components/quiz/Card';
 import Dashboardlay from '@/components/reusable/Dashboardlay';
 import { fetchQuiz } from '@/lib/action/quiz.action';
@@ -5,7 +6,7 @@ import { fetchUser } from '@/lib/action/user.action';
 import { checkAvg, checkUserAvg } from '@/lib/utils';
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
-import React from 'react'
+import React, { Suspense } from 'react'
 import { CiCirclePlus } from "react-icons/ci";
 
 
@@ -13,7 +14,7 @@ const page = async () => {
   const c_user = await currentUser();
   if (!c_user) return;
   const user = await fetchUser({ clerkId: c_user?.id })
-  if(user == "no-user") return;
+  if (user == "no-user") return;
 
   const avg_result = await checkUserAvg(user.user.takens)
 
@@ -28,19 +29,21 @@ const page = async () => {
           <CiCirclePlus className="text-5xl" />
           <h4 className="text-sm">Create a New One</h4>
         </Link>
-        {/* {console.log(user.user.quiz)} */}
+
         {user.user.quiz.map((item: any, index: any) => (
-          <QuizCard
-            key={index}
-            title={item.title}
-            desc={item.desc}
-            category={item.category}
-            visibility={item.visibility}
-            ratio={item.takens}
-            attempt={item.takens.length}
-            total={item.total}
-            id={item._id}
-          />
+          <Suspense fallback={<QuizCardLoading />} key={index}>
+            <QuizCard
+              key={index}
+              title={item.title}
+              desc={item.desc}
+              category={item.category}
+              visibility={item.visibility}
+              ratio={item.takens}
+              attempt={item.takens.length}
+              total={item.total}
+              id={item._id}
+            />
+          </Suspense>
         ))}
       </div>
     </Dashboardlay >

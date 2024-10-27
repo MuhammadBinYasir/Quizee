@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { FaRegQuestionCircle, FaRegUserCircle, FaPercentage, FaCheckCircle, FaEye, FaCommentAlt } from "react-icons/fa";
 import Link from 'next/link';
 import mongoose from 'mongoose';
@@ -43,9 +43,9 @@ const QuizCard = async ({
                 <p className="text-xs text-slate-700">{truncateText(desc, 80)}</p>
 
                 <div className="mt-4 flex flex-wrap gap-2 items-center">
-                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaRegQuestionCircle /> </div> {total} Questions</div>
-                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaRegUserCircle /> </div> {attempt} Attempts</div>
-                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2 mt-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaPercentage /> </div> {ratios.toFixed(2)}% Avg. Result</div>
+                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaRegQuestionCircle /> </div> <Suspense fallback="0">{total}</Suspense> Questions</div>
+                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaRegUserCircle /> </div>  <Suspense fallback="0"> {attempt} </Suspense> Attempts</div>
+                    <div className="flex gap-1 items-center text-xs text-sky-800 bg-sky-100 rounded-full w-max h-6 pr-2 mt-2"><div className='w-6 h-6 bg-sky-800 rounded-full text-white flex items-center justify-center text-sm'><FaPercentage /> </div>  <Suspense fallback="0"> {ratios.toFixed(2)}</Suspense>% Avg. Result</div>
                 </div>
 
             </div>

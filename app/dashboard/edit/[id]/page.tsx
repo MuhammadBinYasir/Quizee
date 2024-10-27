@@ -20,17 +20,22 @@ const page = async ({ params }: { params: { id: string } }) => {
     if(user == "no-user") return;
     if (quiz.userId._id.toString() != user.user._id.toString()) { return `unauthorized`; }
     const userData = {
-        userId: user.user._id
+        userId: String(user.user._id)
     }
 
     const data = {
-        id: quiz._id,
+        id: String(quiz._id),
         title: quiz.title,
         desc: quiz.desc,
         category: quiz.category,
         visibility: quiz.visibility,
-        questions: quiz.questions
-    }
+        questions: quiz.questions.map((q: any) => ({
+            question: q.question, // Ensure this is a string
+            options: Array.isArray(q.options) ? [...q.options] : [], // Ensure this is a string array
+            ans: q.ans // Ensure this is a string
+        })),
+    };
+    
     const flattenedTakens = quiz.takens.flat();
     const AnalData = flattenedTakens.map((taken: any) => ({
         id: taken._id,

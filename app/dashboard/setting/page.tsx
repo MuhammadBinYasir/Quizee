@@ -19,7 +19,7 @@ const page = async () => {
         desc: dbUser.user.desc,
         yt: dbUser.user.yt,
         lkd: dbUser.user.lkd,
-        id: dbUser.user._id
+        id: String(dbUser.user._id)
     };
     return (
        <Dashboardlay title='Edit Profile' desc='Would Like Like To Update About Yourself? If Yes, Then Update it Now.'>

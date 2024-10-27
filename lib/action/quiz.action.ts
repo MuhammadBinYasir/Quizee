@@ -73,3 +73,12 @@ export const fetchQuiz = async ({ id }: { id: string }) => {
 
     return res.toObject();
 }
+
+export const TopQuiz = async () => {
+    await connectToDatabase();
+    const res = await QuizModel.find().sort({ takens: -1 }).limit(10).populate({
+        path: 'userId',
+        model: User,
+    })
+    return res;
+}
