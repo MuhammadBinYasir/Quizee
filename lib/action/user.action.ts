@@ -1,115 +1,156 @@
-"use server"
+"use server";
 
-import User from "@/lib/models/user.model"
-import QuizModel from "@/lib/models/quiz.model"
+import User from "@/lib/models/user.model";
+import QuizModel from "@/lib/models/quiz.model";
 import connectToDatabase from "../db";
 import { fetchQuiz } from "./quiz.action";
 
-export const createUser = async ({ username, name, email, image, desc, yt, lkd, clerkId }: {
+export const createUser = async ({
+  username,
+  name,
+  email,
+  image,
+  desc = "",
+  yt = "",
+  lkd = "",
+  clerkId = "",
+}: {
   username: string;
   name: string;
   email: string;
-  image: string;
-  desc: string;
-  yt: string;
-  lkd: string;
-  clerkId: string;
+  image?: string;
+  desc?: string;
+  yt?: string;
+  lkd?: string;
+  clerkId?: string;
 }) => {
-  await connectToDatabase()
-  try {
-    const res = await User.create({ name, username, email, img: image, desc, yt, lkd, clerkId })
-    return;
-  } catch (error) {
-    console.log("Error: ", error)
-    return;
-  }
-}
-
-export const fetchUser = async ({ clerkId }: { clerkId: string }) => {
   await connectToDatabase();
-  const user = await User.findOne({ clerkId }).populate({
-    path: "quiz",
-    model: QuizModel,
-  }).populate({
-    path: 'takens.quizId',
-    model: QuizModel,
-    populate: {
-      path: 'userId',
-      model: User,
-    }
-  }).exec();
-  if (!user) {
-    return "no-user"
+  try {
+    const res = await User.create({
+      name,
+      username,
+      email,
+      img: image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`,
+      desc,
+      yt,
+      lkd,
+      clerkId,
+    });
+    return res.toObject();
+  } catch (error) {
+    console.log("Error: ", error);
+    return null;
   }
-  const firstname = user.name?.split(' ')[0] ?? 'Unknown'; // Handles undefined name
+};
+
+export const fetchUser = async (params: { clerkId?: string; userId?: string }) => {
+  await connectToDatabase();
+  const query: any = {};
+  if (params.userId) {
+    query._id = params.userId;
+  } else if (params.clerkId) {
+    query.clerkId = params.clerkId;
+  } else {
+    return "no-user";
+  }
+
+  const user = await User.findOne(query)
+    .populate({
+      path: "quiz",
+      model: QuizModel,
+    })
+    .populate({
+      path: "takens.quizId",
+      model: QuizModel,
+      populate: {
+        path: "userId",
+        model: User,
+      },
+    })
+    .exec();
+
+  if (!user) {
+    return "no-user";
+  }
+  const firstname = user.name?.split(" ")[0] ?? "Unknown";
 
   return { firstname, user: user.toObject() };
 };
 
-export const updateTakens = async ({ userId, quizId, total, obtained }:
-  { userId: string, quizId: string, total: number, obtained: number }) => {
-
+export const updateTakens = async ({
+  userId,
+  quizId,
+  total,
+  obtained,
+}: {
+  userId: string;
+  quizId: string;
+  total: number;
+  obtained: number;
+}) => {
   try {
     const quiz = await fetchQuiz({ id: quizId });
-    const newAttempts = quiz.takens.length + 1
-    const newRatio = (quiz.ratio + ((obtained / total) * 100)) / newAttempts;
+    const newAttempts = quiz.takens.length + 1;
+    const newRatio = (quiz.ratio + (obtained / total) * 100) / newAttempts;
     const res = await User.findByIdAndUpdate(userId, {
       $push: { takens: { quizId, total, obtained } },
       ratio: newRatio,
-      attempts: newAttempts
+      attempts: newAttempts,
     });
     if (res) {
       try {
         await QuizModel.findByIdAndUpdate(quizId, {
-          $push: { takens: { userId, total, obtained } }
+          $push: { takens: { userId, total, obtained } },
         });
         return "ok";
       } catch (error) {
-        console.log("Error", error)
+        console.log("Error", error);
       }
     }
   } catch (error) {
-    console.log("Error", error)
+    console.log("Error", error);
   }
+};
 
-
-}
-
-export const hasTakenQuiz = async ({ userId, quizId }:
-  {
-    userId: string;
-    quizId: string;
-  }) => {
+export const hasTakenQuiz = async ({
+  userId,
+  quizId,
+}: {
+  userId: string;
+  quizId: string;
+}) => {
   const res = await User.findOne({
     _id: userId,
-    'takens.quizId': quizId // Check if the quizId exists in the takens array
+    "takens.quizId": quizId,
   });
 
   if (res) {
-    return "exist"
+    return "exist";
   } else {
     return;
   }
-
-}
+};
 
 export const fetchUserWithUsername = async ({ username }: { username: string }) => {
   await connectToDatabase();
-  const user = await User.findOne({ username }).populate({
-    path: "quiz",
-    model: QuizModel,
-  }).populate({
-    path: "takens.quizId",
-    model: QuizModel,
-    populate: {
-      path: 'userId',
-      model: User,
-    }
-  }).exec();
+  const user = await User.findOne({ username })
+    .populate({
+      path: "quiz",
+      model: QuizModel,
+    })
+    .populate({
+      path: "takens.quizId",
+      model: QuizModel,
+      populate: {
+        path: "userId",
+        model: User,
+      },
+    })
+    .exec();
   if (!user) {
-    return "404"
+    return "404";
   }
-  const firstname = user.name?.split(' ')[0] ?? 'Unknown';
+  const firstname = user.name?.split(" ")[0] ?? "Unknown";
 
   return { firstname, user: user.toObject() };
 };
@@ -120,8 +161,8 @@ export const updateUser = async ({
   image,
   desc,
   yt,
-  lkd
-}:{
+  lkd,
+}: {
   userId: string;
   name: string;
   image: string;
@@ -129,24 +170,21 @@ export const updateUser = async ({
   yt: string;
   lkd: string;
 }) => {
-  
-  await connectToDatabase()
+  await connectToDatabase();
   try {
-  const res = await User.findByIdAndUpdate(userId, {
-    name,
-    img: image,
-    desc,
-    yt,
-    lkd
-  });
+    const res = await User.findByIdAndUpdate(userId, {
+      name,
+      img: image,
+      desc,
+      yt,
+      lkd,
+    });
 
-  if(res){
-    return "ok"
+    if (res) {
+      return "ok";
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+    return;
   }
-
-}catch (error) {
-  console.error("Error: ", error);
-  return;
-}
-
-}
+};

@@ -1,28 +1,27 @@
-import OnBoard from '@/components/forms/onBoard'
+import OnBoard from '@/components/forms/onBoard';
 import Dashboardlay from '@/components/reusable/Dashboardlay';
-import { fetchUser } from '@/lib/action/user.action';
-import { currentUser } from '@clerk/nextjs/server'
+import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import React from 'react'
+import React from 'react';
 
 const page = async () => {
-    const clerkUser = await currentUser();
-    if (!clerkUser) redirect('/sign-in')
-    const dbUser = await fetchUser({ clerkId: clerkUser.id })
-    if (dbUser == "no-user") redirect('/sign-in')
+    const user = await getCurrentUser();
+    if (!user) redirect('/login');
+
     const data = {
-        username: clerkUser.username ?? "no-username",
-        image: dbUser.user.img,
-        email: clerkUser.emailAddresses?.[0]?.emailAddress ?? "no-email",
-        clerkId: clerkUser.id ?? "no-id",
-        name: dbUser.user.name,
-        desc: dbUser.user.desc,
-        yt: dbUser.user.yt,
-        lkd: dbUser.user.lkd,
-        id: String(dbUser.user._id)
+        username: user.username,
+        image: user.img || '',
+        email: user.email,
+        clerkId: user.clerkId || '',
+        name: user.name,
+        desc: user.desc || '',
+        yt: user.yt || '',
+        lkd: user.lkd || '',
+        id: String(user._id)
     };
+
     return (
-       <Dashboardlay title='Edit Profile' desc='Would Like Like To Update About Yourself? If Yes, Then Update it Now.'>
+       <Dashboardlay title='Edit Profile' desc='Would you like to update your profile? Edit your details below.'>
          <div className="flex items-center h-full mt-5 justify-center">
             <div className="w-[500px] max-w-full mt-5 p-5 bg-white shadow-lg rounded">
                 <div className="pb-4 border-b border-b-slate-100">
@@ -31,10 +30,10 @@ const page = async () => {
                     <p className='text-xs text-slate-500 mt-2'>* All Fields are Required.</p>
                 </div>
                 <OnBoard user={data} />
-            </div >
+            </div>
         </div>
        </Dashboardlay>
-    )
-}
+    );
+};
 
-export default page
+export default page;

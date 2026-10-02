@@ -1,27 +1,26 @@
 import CreateQuiz from '@/components/forms/createQuiz';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchQuiz } from '@/lib/action/quiz.action';
-import { fetchUser } from '@/lib/action/user.action';
-import { currentUser } from '@clerk/nextjs/server';
-import React from 'react'
-import { Type, columns } from "@/components/tables/userTakens/colums"
-import { DataTable } from "@/components/tables/userTakens/data-table"
-
+import { getCurrentUser } from '@/lib/auth';
+import React from 'react';
+import { columns } from "@/components/tables/userTakens/colums";
+import { DataTable } from "@/components/tables/userTakens/data-table";
+import { redirect } from 'next/navigation';
 
 const page = async ({ params }: { params: { id: string } }) => {
-
-    const c_user = await currentUser();
-    if (!c_user) return "Please SignIn";
+    const user = await getCurrentUser();
+    if (!user) redirect('/login');
 
     const quiz = await fetchQuiz({ id: params.id });
-    if (!quiz) { return "No Quiz Found"; }
+    if (!quiz) { return <div className="p-10 text-slate-600">No Quiz Found</div>; }
 
-    const user = await fetchUser({ clerkId: c_user?.id })
-    if(user == "no-user") return;
-    if (quiz.userId._id.toString() != user.user._id.toString()) { return `unauthorized`; }
-    const userData = {
-        userId: String(user.user._id)
+    if (quiz.userId._id.toString() !== user._id.toString()) { 
+        return <div className="p-10 text-red-500 font-semibold">Unauthorized</div>; 
     }
+
+    const userData = {
+        userId: String(user._id)
+    };
 
     const data = {
         id: String(quiz._id),
@@ -30,9 +29,9 @@ const page = async ({ params }: { params: { id: string } }) => {
         category: quiz.category,
         visibility: quiz.visibility,
         questions: quiz.questions.map((q: any) => ({
-            question: q.question, // Ensure this is a string
-            options: Array.isArray(q.options) ? [...q.options] : [], // Ensure this is a string array
-            ans: q.ans // Ensure this is a string
+            question: q.question,
+            options: Array.isArray(q.options) ? [...q.options] : [],
+            ans: q.ans
         })),
     };
     
@@ -45,9 +44,10 @@ const page = async ({ params }: { params: { id: string } }) => {
         total: taken.total,
         percentage: Number(((taken.obtained / taken.total) * 100).toFixed(2)), 
     }));
+
     return (
         <div className="p-10">
-            <div className="border border-slate-100 rounded p-5">
+            <div className="border border-slate-100 rounded p-5 bg-white shadow-sm">
                 <Tabs defaultValue="edit" className="max-w-full w-full">
                     <TabsList className="grid w-[400px] max-w-full h-10 mx-auto grid-cols-2">
                         <TabsTrigger value="edit">Edit</TabsTrigger>
@@ -65,7 +65,6 @@ const page = async ({ params }: { params: { id: string } }) => {
             </div>
         </div>
     );
+};
 
-}
-
-export default page
+export default page;

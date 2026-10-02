@@ -1,31 +1,37 @@
-import { fetchUser } from '@/lib/action/user.action';
-import { currentUser } from '@clerk/nextjs/server';
+import { getCurrentUser } from '@/lib/auth';
 import Link from 'next/link';
-import React from 'react'
+import React from 'react';
 
 const HeaderButton = async () => {
-    const checkUser = async () => {
-        const clerk = await currentUser();
-        if (clerk) {
-            const user = await fetchUser({ clerkId: clerk.id })
-            if (user != "no-user") {
-                return "ok"
-            }
-        }
-    }
-    const res = await checkUser();
-    return (
-        <>
-            {res != "ok" ? (
-                <div className="flex items-center gap-3">
-                    <Link href="/sign-in" className="w-28 h-10 sm:flex hidden items-center bg-sky-200 text-sky-800 justify-center rounded-full text-base">Login</Link>
-                    <Link href="/sign-up" className="w-28 h-10 flex items-center bg-sky-800 text-white justify-center rounded-full text-base">Sign up</Link>
-                </div>
-            ) : (
-                <Link href="/dashboard" className="min-w-32 h-10 flex items-center bg-sky-800 text-white justify-center rounded-full text-base">Dashboard</Link>
-            )}
-        </>
-    )
-}
+  const user = await getCurrentUser();
 
-export default HeaderButton
+  return (
+    <>
+      {!user ? (
+        <div className="flex items-center gap-3">
+          <Link
+            href="/login"
+            className="w-28 h-10 sm:flex hidden items-center bg-sky-200 text-sky-800 justify-center rounded-full text-base font-medium hover:bg-sky-300 transition-colors"
+          >
+            Login
+          </Link>
+          <Link
+            href="/signup"
+            className="w-28 h-10 flex items-center bg-sky-800 text-white justify-center rounded-full text-base font-medium hover:bg-sky-900 transition-colors"
+          >
+            Sign up
+          </Link>
+        </div>
+      ) : (
+        <Link
+          href="/dashboard"
+          className="min-w-32 h-10 px-5 flex items-center bg-sky-800 text-white justify-center rounded-full text-base font-medium hover:bg-sky-900 transition-colors"
+        >
+          Dashboard
+        </Link>
+      )}
+    </>
+  );
+};
+
+export default HeaderButton;
