@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
@@ -46,9 +45,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Success
-      router.push(redirectUrl);
-      router.refresh();
+      // Hard redirect to ensure browser attaches cookies and triggers layout re-fetch
+      window.location.href = redirectUrl;
     } catch (err: any) {
       console.error("Login request error:", err);
       setError("Network error. Please verify your connection and try again.");

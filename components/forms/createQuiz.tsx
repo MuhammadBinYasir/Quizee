@@ -1,296 +1,482 @@
-"use client"
+"use client";
 
-import { quizZod } from '@/lib/zodModel/quiz.model'
-
-import React, { useState } from 'react'
-import { z } from "zod"
-import { useFieldArray, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Input } from "@/components/ui/input"
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { FaRegTrashAlt } from "react-icons/fa";
-import { createQuiz, updateQuiz } from '@/lib/action/quiz.action'
-import { useRouter } from "next/navigation"
-import { LuLoader2 } from 'react-icons/lu'
-import { revalidatePath } from 'next/cache'
+  Plus,
+  Trash2,
+  CheckCircle2,
+  HelpCircle,
+  Sparkles,
+  ArrowLeft,
+  Loader2,
+  Globe,
+  Lock,
+  Layers,
+} from "lucide-react";
+import { createQuiz, updateQuiz } from "@/lib/action/quiz.action";
 
-const CreateQuiz = ({ user, data }: {
-    user: {
-        userId: string;
-    },
-    data?: {
-        id: string;
-        title: string;
-        desc: string;
-        category: string;
-        visibility: string;
-        questions: {
-            question: string;
-            options: string[];
-            ans: string;
-        }[];
-    }
-}) => {
-    const [loading, setLoading] = useState(false)
-    const router = useRouter();
-    const form = useForm<z.infer<typeof quizZod>>({
-        resolver: zodResolver(quizZod),
-        defaultValues: {
-            title: data ? data.title : "",
-            desc: data ? data.desc : "",
-            category: data ? data.category : "",
-            visibility: data ? data.visibility : "",
-            questions: data ? data.questions : [{ question: '', options: ['', '', '', ''], ans: "1" }]
-        },
-    });
-
-    const { control } = form;
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: "questions"
-    });
-
-
-    const onSubmit = async (values: z.infer<typeof quizZod>) => {
-        if (data) {
-            setLoading(true);
-
-            const res = await updateQuiz({
-                id: data.id,
-                title: values.title,
-                desc: values.desc,
-                category: values.category,
-                visibility: values.visibility,
-                questions: values.questions,
-                total: values.questions.length,
-                userId: user.userId
-            });
-            if (res === "ok") {
-                router.push("/dashboard");
-            }
-        } else {
-            setLoading(true);
-
-            const res = await createQuiz({
-                title: values.title,
-                desc: values.desc,
-                category: values.category,
-                visibility: values.visibility,
-                questions: values.questions,
-                total: values.questions.length,
-                userId: user.userId
-            });
-            if (res === "ok") {
-                router.push("/dashboard");
-            }
-        }
-    }
-    return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-3 mt-2 gap-5">
-                    <div className="md:col-span-2 col-span-3 space-y-2">
-                        <FormField
-                            control={form.control}
-                            name="title"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Python Quiz For Beginners" {...field} />
-                                    </FormControl>
-                                    <FormDescription>It must be unique and attractive.</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="desc"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Description</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Describe Your Quizzes." className="h-44 resize-none" {...field} />
-                                    </FormControl>
-                                    <FormDescription>Minimum 50 and Maximum 300 Characters.</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="flex items-center gap-3">
-                            <FormField
-                                control={form.control}
-                                name="visibility"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Visibility</FormLabel>
-                                        <FormControl>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select Visibility for Your Quiz." />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="public">public</SelectItem>
-                                                    <SelectItem value="private">private</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Category</FormLabel>
-                                        <FormControl>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select Category for Your Quiz." />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="General Knowledge">General Knowledge</SelectItem>
-                                                    <SelectItem value="Entertainment">Entertainment</SelectItem>
-                                                    <SelectItem value="Sports">Sports</SelectItem>
-                                                    <SelectItem value="Technology">Technology</SelectItem>
-                                                    <SelectItem value="Educational">Educational</SelectItem>
-                                                    <SelectItem value="Games & Puzzles">Games & Puzzles</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                    </div>
-
-                    <div className="md:col-span-1 col-span-3 space-y-4 max-h-[calc(100vh-64px)] overflow-auto">
-                        <div
-                            className='px-3 text-sm bg-primaryColor text-white rounded-md py-2 w-max cursor-pointer mt-2'
-                            onClick={() => append({ question: '', options: ['', '', '', ''], ans: "1" })}>
-                            Add Question
-                        </div>
-                        <Accordion type="single" collapsible className="w-full mt-5">
-                            {fields.map((field, index) => (
-
-                                <AccordionItem value={field.id} key={index}>
-                                    <AccordionTrigger>
-                                        <>
-                                            {form.watch('questions')[index]?.question || "Untitled Question"}
-                                            <div onClick={() => remove(index)}><FaRegTrashAlt /></div>
-                                        </>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="space-y-2">
-                                        <FormField
-                                            control={form.control}
-                                            name={`questions.${index}.question`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Enter Question</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="Enter Question.." />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <div>
-                                            {field.options.map((key, optionIndex) => (
-                                                <div key={optionIndex} className="px-2 mt-2">
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`questions.${index}.options.${optionIndex}`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormLabel>Enter Option</FormLabel>
-                                                                <FormControl>
-                                                                    <Input {...field} placeholder="Enter Option.." />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <FormField
-                                            control={form.control}
-                                            name={`questions.${index}.ans`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Correct Answer</FormLabel>
-                                                    <FormControl>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                            <FormControl>
-                                                                <SelectTrigger>
-                                                                    <SelectValue placeholder="Select Correct Answer" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                <SelectItem value="1">{form.watch('questions')[index]?.options[0] || "Option 1"}</SelectItem>
-
-                                                                <SelectItem value="2">{form.watch('questions')[index]?.options[1] || "Option 2"}</SelectItem>
-
-                                                                <SelectItem value="3">{form.watch('questions')[index]?.options[2] || "Option 3"}</SelectItem>
-
-                                                                <SelectItem value="4">{form.watch('questions')[index]?.options[3] || "Option 4"}</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </AccordionContent>
-                                </AccordionItem>
-
-                            ))}
-                        </Accordion>
-                    </div>
-
-                </div>
-                {loading ?
-                    <Button disabled>
-                        <LuLoader2 className="animate-spin mr-2" />
-                        Please wait
-                    </Button> : <Button>Submit</Button>
-                }
-            </form>
-        </Form>
-    )
+interface QuestionData {
+  question: string;
+  options: string[];
+  ans: string;
 }
 
-export default CreateQuiz
+interface CreateQuizProps {
+  user: {
+    userId: string;
+  };
+  data?: {
+    id: string;
+    title: string;
+    desc: string;
+    category: string;
+    visibility: string;
+    questions: QuestionData[];
+  };
+}
+
+const CATEGORIES = [
+  "General Knowledge",
+  "Technology",
+  "Educational",
+  "Science",
+  "Mathematics",
+  "History",
+  "Entertainment",
+  "Sports",
+  "Games & Puzzles",
+];
+
+export default function CreateQuiz({ user, data }: CreateQuizProps) {
+  const router = useRouter();
+
+  const [title, setTitle] = useState(data?.title || "");
+  const [desc, setDesc] = useState(data?.desc || "");
+  const [category, setCategory] = useState(data?.category || "Technology");
+  const [visibility, setVisibility] = useState(data?.visibility || "public");
+  const [questions, setQuestions] = useState<QuestionData[]>(
+    data?.questions && data.questions.length > 0
+      ? data.questions
+      : [
+          {
+            question: "",
+            options: ["", "", "", ""],
+            ans: "1",
+          },
+        ]
+  );
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAddQuestion = () => {
+    setQuestions((prev) => [
+      ...prev,
+      {
+        question: "",
+        options: ["", "", "", ""],
+        ans: "1",
+      },
+    ]);
+  };
+
+  const handleRemoveQuestion = (index: number) => {
+    if (questions.length <= 1) {
+      setError("A quiz must have at least one question.");
+      return;
+    }
+    setError(null);
+    setQuestions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleQuestionTextChange = (index: number, text: string) => {
+    setQuestions((prev) => {
+      const copy = [...prev];
+      copy[index].question = text;
+      return copy;
+    });
+  };
+
+  const handleOptionChange = (
+    qIndex: number,
+    optIndex: number,
+    value: string
+  ) => {
+    setQuestions((prev) => {
+      const copy = [...prev];
+      copy[qIndex].options[optIndex] = value;
+      return copy;
+    });
+  };
+
+  const handleCorrectAnswerChange = (qIndex: number, optNumberStr: string) => {
+    setQuestions((prev) => {
+      const copy = [...prev];
+      copy[qIndex].ans = optNumberStr;
+      return copy;
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    // Validations
+    if (!title.trim()) {
+      setError("Please enter a quiz title.");
+      return;
+    }
+    if (!desc.trim()) {
+      setError("Please provide a short description for your quiz.");
+      return;
+    }
+    if (questions.length === 0) {
+      setError("Please add at least one question.");
+      return;
+    }
+
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (!q.question.trim()) {
+        setError(`Question ${i + 1} cannot be blank.`);
+        return;
+      }
+      for (let j = 0; j < q.options.length; j++) {
+        if (!q.options[j].trim()) {
+          setError(`Option ${String.fromCharCode(65 + j)} for Question ${i + 1} cannot be blank.`);
+          return;
+        }
+      }
+    }
+
+    setLoading(true);
+
+    try {
+      if (data?.id) {
+        const res = await updateQuiz({
+          id: data.id,
+          title: title.trim(),
+          desc: desc.trim(),
+          category,
+          visibility,
+          questions,
+          total: questions.length,
+          userId: user.userId,
+        });
+
+        if (res === "ok") {
+          window.location.href = "/dashboard";
+        } else {
+          setError("Failed to update quiz. Please try again.");
+          setLoading(false);
+        }
+      } else {
+        const res = await createQuiz({
+          title: title.trim(),
+          desc: desc.trim(),
+          category,
+          visibility,
+          questions,
+          total: questions.length,
+          userId: user.userId,
+        });
+
+        if (res === "ok") {
+          window.location.href = "/dashboard";
+        } else {
+          setError("Failed to create quiz. Please try again.");
+          setLoading(false);
+        }
+      }
+    } catch (err: any) {
+      console.error("Quiz submit error:", err);
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 font-medium flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="text-red-500 hover:text-red-800 text-xs font-bold"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* =====================================================
+          SECTION 1: QUIZ ESSENTIALS
+      ===================================================== */}
+      <div className="space-y-5">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#eeeeeb]">
+          <Sparkles className="w-4 h-4 text-[#8279a9]" />
+          <h2 className="font-display font-bold text-base text-[#353640]">
+            1. Quiz Details
+          </h2>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#525460] mb-2">
+            Quiz Title <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Introduction to Physics: Newton's Laws"
+            required
+            className="w-full h-11 px-4 rounded-xl border border-[#dedee2] bg-[#fafaf8] text-sm text-[#33353f] placeholder:text-[#a6a7b0] outline-none focus:border-[#8279a9] focus:bg-white focus:ring-2 focus:ring-[#8279a9]/10 transition"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#525460] mb-2">
+            Description <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            rows={3}
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            placeholder="Provide brief context or instructions for your students taking this quiz..."
+            required
+            className="w-full p-4 rounded-xl border border-[#dedee2] bg-[#fafaf8] text-sm text-[#33353f] placeholder:text-[#a6a7b0] outline-none focus:border-[#8279a9] focus:bg-white focus:ring-2 focus:ring-[#8279a9]/10 transition resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-[#525460] mb-2">
+              Category
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full h-11 px-3.5 rounded-xl border border-[#dedee2] bg-[#fafaf8] text-xs font-medium text-[#33353f] outline-none focus:border-[#8279a9] focus:bg-white transition"
+            >
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#525460] mb-2">
+              Visibility
+            </label>
+            <div className="grid grid-cols-2 gap-2 h-11">
+              <button
+                type="button"
+                onClick={() => setVisibility("public")}
+                className={`flex items-center justify-center gap-2 rounded-xl text-xs font-medium border transition ${
+                  visibility === "public"
+                    ? "bg-[#f0eef6] border-[#8279a9] text-[#706891] font-semibold"
+                    : "border-[#dedee2] bg-[#fafaf8] text-[#787a85] hover:bg-white"
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Public</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVisibility("private")}
+                className={`flex items-center justify-center gap-2 rounded-xl text-xs font-medium border transition ${
+                  visibility === "private"
+                    ? "bg-[#f0eef6] border-[#8279a9] text-[#706891] font-semibold"
+                    : "border-[#dedee2] bg-[#fafaf8] text-[#787a85] hover:bg-white"
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Private</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* =====================================================
+          SECTION 2: QUESTIONS BUILDER
+      ===================================================== */}
+      <div className="space-y-5 pt-4">
+        <div className="flex items-center justify-between pb-2 border-b border-[#eeeeeb]">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#8279a9]" />
+            <h2 className="font-display font-bold text-base text-[#353640]">
+              2. Questions ({questions.length})
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddQuestion}
+            className="h-9 px-3.5 rounded-lg bg-[#8279a9] text-white text-xs font-medium inline-flex items-center gap-1.5 hover:bg-[#746b9a] transition shadow-xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Question</span>
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          {questions.map((q, qIndex) => (
+            <div
+              key={qIndex}
+              className="bg-[#fbfbfa] rounded-2xl border border-[#dedee2] p-5 sm:p-6 transition hover:border-[#cbc6dc]"
+            >
+              {/* Question Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-lg bg-[#8279a9] text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                    {String(qIndex + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#8279a9]">
+                    Question {qIndex + 1}
+                  </span>
+                </div>
+
+                {questions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveQuestion(qIndex)}
+                    className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition"
+                    title="Delete question"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Question Prompt */}
+              <div className="mb-5">
+                <input
+                  type="text"
+                  value={q.question}
+                  onChange={(e) =>
+                    handleQuestionTextChange(qIndex, e.target.value)
+                  }
+                  placeholder="Enter the question prompt here..."
+                  required
+                  className="w-full h-11 px-4 rounded-xl border border-[#dedee2] bg-white text-sm text-[#33353f] placeholder:text-[#a6a7b0] outline-none focus:border-[#8279a9] focus:ring-2 focus:ring-[#8279a9]/10 transition"
+                />
+              </div>
+
+              {/* Options & Correct Answer Selector */}
+              <div>
+                <p className="text-[11px] font-semibold text-[#7d7f8a] uppercase tracking-wider mb-2.5">
+                  Answer Options & Correct Key (Click the radio to set correct answer)
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {q.options.map((opt, optIndex) => {
+                    const optKey = String(optIndex + 1);
+                    const isCorrect = q.ans === optKey;
+                    const letter = String.fromCharCode(65 + optIndex);
+
+                    return (
+                      <div
+                        key={optIndex}
+                        className={`flex items-center gap-2.5 p-2 rounded-xl border transition ${
+                          isCorrect
+                            ? "border-[#8279a9] bg-[#f2eff9]"
+                            : "border-[#e3e3e6] bg-white"
+                        }`}
+                      >
+                        {/* Radio select button */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleCorrectAnswerChange(qIndex, optKey)
+                          }
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition ${
+                            isCorrect
+                              ? "bg-[#8279a9] text-white shadow-xs"
+                              : "bg-[#eeeeef] text-[#8e909a] hover:bg-[#dedee3]"
+                          }`}
+                          title={
+                            isCorrect
+                              ? "Correct Answer"
+                              : `Set option ${letter} as correct answer`
+                          }
+                        >
+                          {letter}
+                        </button>
+
+                        {/* Option text input */}
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={(e) =>
+                            handleOptionChange(
+                              qIndex,
+                              optIndex,
+                              e.target.value
+                            )
+                          }
+                          placeholder={`Option ${letter}...`}
+                          required
+                          className="w-full h-8 px-2 bg-transparent text-xs text-[#33353f] placeholder:text-[#b0b1b8] outline-none font-medium"
+                        />
+
+                        {isCorrect && (
+                          <span className="text-[10px] font-semibold text-[#8279a9] px-2 py-0.5 rounded bg-white shrink-0 shadow-2xs">
+                            Correct
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Add more button */}
+        <button
+          type="button"
+          onClick={handleAddQuestion}
+          className="w-full py-3.5 rounded-2xl border-2 border-dashed border-[#dcd9eb] bg-[#f9f8fc] hover:bg-[#f2eff8] hover:border-[#8279a9]/60 text-xs font-semibold text-[#8279a9] flex items-center justify-center gap-2 transition"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Another Question</span>
+        </button>
+      </div>
+
+      {/* =====================================================
+          SUBMIT ACTIONS
+      ===================================================== */}
+      <div className="pt-6 border-t border-[#eeeeeb] flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard")}
+          className="h-11 px-5 rounded-xl border border-[#dddddf] bg-white text-xs font-semibold text-[#666874] hover:bg-[#fafaf8] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="h-11 px-7 rounded-xl bg-[#30323c] hover:bg-[#41434e] text-white text-xs font-semibold inline-flex items-center gap-2 transition disabled:opacity-70 disabled:cursor-not-allowed shadow-xs"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Saving Quiz...</span>
+            </>
+          ) : (
+            <span>{data?.id ? "Update Quiz" : "Publish Quiz"}</span>
+          )}
+        </button>
+      </div>
+    </form>
+  );
+}

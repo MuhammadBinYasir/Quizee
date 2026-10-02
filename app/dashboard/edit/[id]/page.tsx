@@ -1,4 +1,5 @@
 import CreateQuiz from '@/components/forms/createQuiz';
+import Dashboardlay from '@/components/reusable/Dashboardlay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchQuiz } from '@/lib/action/quiz.action';
 import { getCurrentUser } from '@/lib/auth';
@@ -7,15 +8,31 @@ import { columns } from "@/components/tables/userTakens/colums";
 import { DataTable } from "@/components/tables/userTakens/data-table";
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 const page = async ({ params }: { params: { id: string } }) => {
     const user = await getCurrentUser();
     if (!user) redirect('/login');
 
     const quiz = await fetchQuiz({ id: params.id });
-    if (!quiz) { return <div className="p-10 text-slate-600">No Quiz Found</div>; }
+    if (!quiz) {
+        return (
+            <Dashboardlay title="Quiz Not Found" desc="We couldn't find the quiz you requested.">
+                <div className="bg-white p-8 rounded-2xl border border-[#e3e3e0] text-center text-sm text-[#7f808a]">
+                    No quiz found with ID: {params.id}
+                </div>
+            </Dashboardlay>
+        );
+    }
 
     if (quiz.userId._id.toString() !== user._id.toString()) { 
-        return <div className="p-10 text-red-500 font-semibold">Unauthorized</div>; 
+        return (
+            <Dashboardlay title="Unauthorized" desc="You do not have permission to edit this quiz.">
+                <div className="bg-white p-8 rounded-2xl border border-red-200 text-center text-sm text-red-600">
+                    You can only edit quizzes you created.
+                </div>
+            </Dashboardlay>
+        ); 
     }
 
     const userData = {
@@ -35,7 +52,7 @@ const page = async ({ params }: { params: { id: string } }) => {
         })),
     };
     
-    const flattenedTakens = quiz.takens.flat();
+    const flattenedTakens = (quiz.takens || []).flat();
     const AnalData = flattenedTakens.map((taken: any) => ({
         id: taken._id,
         username: taken.userId?.username || "Unknown", 
@@ -46,24 +63,25 @@ const page = async ({ params }: { params: { id: string } }) => {
     }));
 
     return (
-        <div className="p-10">
-            <div className="border border-slate-100 rounded p-5 bg-white shadow-sm">
+        <Dashboardlay
+            title={`Edit Quiz: ${quiz.title}`}
+            desc="Update questions, options, visibility, and review participant analytics."
+        >
+            <div className="bg-white border border-[#e3e3e0] rounded-2xl p-6 shadow-xs">
                 <Tabs defaultValue="edit" className="max-w-full w-full">
-                    <TabsList className="grid w-[400px] max-w-full h-10 mx-auto grid-cols-2">
-                        <TabsTrigger value="edit">Edit</TabsTrigger>
-                        <TabsTrigger value="anal">Analytics</TabsTrigger>
+                    <TabsList className="grid w-[320px] max-w-full h-10 mb-6 mx-auto grid-cols-2 bg-[#f0eef6] rounded-xl p-1">
+                        <TabsTrigger value="edit" className="rounded-lg text-xs font-semibold data-[state=active]:bg-white data-[state=active]:text-[#8279a9] data-[state=active]:shadow-xs">Edit Questions</TabsTrigger>
+                        <TabsTrigger value="anal" className="rounded-lg text-xs font-semibold data-[state=active]:bg-white data-[state=active]:text-[#8279a9] data-[state=active]:shadow-xs">Analytics</TabsTrigger>
                     </TabsList>
                     <TabsContent value="edit">
-                        <h4 className="text-lg font-bold text-slate-900 mb-4">Edit Your Quiz</h4>
                         <CreateQuiz user={userData} data={data} />
                     </TabsContent>
                     <TabsContent value="anal">
-                        <h4 className="text-lg font-bold text-slate-900 mb-4">Analytics of Quiz</h4>
                         <DataTable columns={columns} data={AnalData} />
                     </TabsContent>
                 </Tabs>
             </div>
-        </div>
+        </Dashboardlay>
     );
 };
 

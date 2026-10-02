@@ -81,8 +81,7 @@ export default function SignupPage() {
       }
 
       // Successful registration
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } catch (err: any) {
       console.error("Signup request error:", err);
       setError("Network error. Please check your connection and try again.");
