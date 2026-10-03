@@ -1,24 +1,29 @@
 import CreateQuiz from '@/components/forms/createQuiz';
-import { fetchUser } from '@/lib/action/user.action'
-import { currentUser } from '@clerk/nextjs/server'
-import React from 'react'
+import Dashboardlay from '@/components/reusable/Dashboardlay';
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import React from 'react';
+
+export const dynamic = 'force-dynamic';
 
 const page = async () => {
-    const c_user = await currentUser();
-    if (!c_user) return;
-    const user = await fetchUser({ clerkId: c_user?.id })
-    if (user == "no-user") return;
+    const user = await getCurrentUser();
+    if (!user) redirect('/login');
+
     const userData = {
-        userId: String(user.user._id)
-    }
+        userId: String(user._id)
+    };
+
     return (
-        <div className="p-10">
-            <div className="border border-slate-100 rounded p-5">
-                <h4 className="text-lg font-bold text-slate-900">Create New Quiz</h4>
+        <Dashboardlay
+            title="Create New Quiz"
+            desc="Add your quiz title, description, category, and multiple-choice questions."
+        >
+            <div className="bg-white border border-[#e3e3e0] rounded-2xl p-6 sm:p-8 shadow-xs">
                 <CreateQuiz user={userData} />
             </div>
-        </div>
-    )
-}
+        </Dashboardlay>
+    );
+};
 
-export default page
+export default page;

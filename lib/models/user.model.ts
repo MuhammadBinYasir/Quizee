@@ -12,33 +12,43 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  clerkId: {
-    type: String,
-    required: true,
-  },
   username: {
     type: String,
     required: true,
+    unique: true,
+    trim: true,
   },
   email: {
     type: String,
     required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
+  password: {
+    type: String,
+    required: false,
+  },
+  clerkId: {
+    type: String,
+    required: false,
+    default: "",
   },
   img: {
     type: String,
-    required: true,
+    default: "https://api.dicebear.com/7.x/avataaars/svg?seed=Quizee",
   },
   desc: {
     type: String,
-    required: true
+    default: "",
   },
   yt: {
     type: String,
-    required: true
+    default: "",
   },
   lkd: {
     type: String,
-    required: true
+    default: "",
   },
   quiz: [{
     type: Schema.Types.ObjectId,

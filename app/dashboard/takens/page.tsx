@@ -1,34 +1,39 @@
-import Dashboardlay from '@/components/reusable/Dashboardlay'
-import React from 'react'
+import Dashboardlay from '@/components/reusable/Dashboardlay';
+import React from 'react';
+import { columns } from "@/components/tables/userTakens/colums";
+import { DataTable } from "@/components/tables/userTakens/data-table";
+import { fetchUser } from '@/lib/action/user.action';
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
-import { Type, columns } from "@/components/tables/userTakens/colums"
-import { DataTable } from "@/components/tables/userTakens/data-table"
-import { fetchUser } from '@/lib/action/user.action'
-
-import { currentUser } from '@clerk/nextjs/server'
-
+export const dynamic = 'force-dynamic';
 
 const page = async () => {
-    const c_user = await currentUser();
-    if (!c_user) return;
-    const fetchData = await fetchUser({ clerkId: c_user.id })
-    if(fetchData == "no-user") return;
+    const user = await getCurrentUser();
+    if (!user) redirect('/login');
 
-    const data = fetchData.user.takens.map((taken: any) => ({
-        id: taken.quizId._id,
-        username: taken.quizId.userId.username,
-        title: taken.quizId.title,
+    const fetchData = await fetchUser({ userId: String(user._id) });
+    if (fetchData === "no-user") return null;
+
+    const data = (fetchData.user.takens || []).map((taken: any) => ({
+        id: taken.quizId?._id.toString(),
+        username: taken.quizId?.userId?.username || "Unknown",
+        title: taken.quizId?.title || "Untitled Quiz",
         obtained: taken.obtained,
         total: taken.total,
-        percentage: ((taken.obtained / taken.total) * 100).toFixed(2),
-      }));
-      
+        percentage: Number(((taken.obtained / taken.total) * 100).toFixed(2)),
+    }));
+
     return (
-        <Dashboardlay title={'Taken Quiz'} desc="You Performance in Quizzes you have taken ever.">
-            <div className="mt-4"><DataTable columns={columns} data={data} /></div>
+        <Dashboardlay
+            title="Taken Quizzes & History"
+            desc="Track and review your past quiz performances, total questions, and scores."
+        >
+            <div className="bg-white border border-[#e3e3e0] rounded-2xl p-6 shadow-xs">
+                <DataTable columns={columns} data={data} />
+            </div>
         </Dashboardlay>
-    )
+    );
+};
 
-}
-
-export default page
+export default page;
