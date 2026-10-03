@@ -16,14 +16,14 @@ const page = async () => {
     if (fetchData === "no-user") return null;
 
     const data = (fetchData.user.takens || []).map((taken: any) => ({
-        id: taken.quizId?._id,
+        id: taken.quizId?._id.toString(),
         username: taken.quizId?.userId?.username || "Unknown",
         title: taken.quizId?.title || "Untitled Quiz",
         obtained: taken.obtained,
         total: taken.total,
         percentage: Number(((taken.obtained / taken.total) * 100).toFixed(2)),
     }));
-      
+
     return (
         <Dashboardlay
             title="Taken Quizzes & History"

@@ -10,11 +10,12 @@ import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const user = await getCurrentUser();
     if (!user) redirect('/login');
 
-    const quiz = await fetchQuiz({ id: params.id });
+    const quiz = await fetchQuiz({ id });
     if (!quiz) {
         return (
             <Dashboardlay title="Quiz Not Found" desc="We couldn't find the quiz you requested.">

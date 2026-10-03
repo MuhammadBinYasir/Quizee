@@ -16,10 +16,11 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-const page = async ({ params }: { params: { username: string; id: string } }) => {
-    const data = await fetchQuiz({ id: params.id });
+const page = async ({ params }: { params: Promise<{ username: string; id: string }> }) => {
+    const { username, id } = await params;
+    const data = await fetchQuiz({ id });
     const user = await getCurrentUser();
-    if (!user) redirect(`/login?redirect=/${params.username}/${params.id}`);
+    if (!user) redirect(`/login?redirect=/${username}/${id}`);
 
     const takenQuiz = await hasTakenQuiz({
         userId: user._id,
@@ -41,7 +42,7 @@ const page = async ({ params }: { params: { username: string; id: string } }) =>
             {/* ===== Sticky Header ===== */}
             <header className="h-14 bg-white/90 backdrop-blur-md border-b border-[#e8e8e5] sticky top-0 z-30">
                 <div className="max-w-5xl mx-auto h-full px-5 flex items-center justify-between">
-                    <Link href={`/${params.username}`} className="flex items-center gap-2 text-[#6e6f7a] hover:text-[#33353f] transition text-xs font-medium">
+                    <Link href={`/${username}`} className="flex items-center gap-2 text-[#6e6f7a] hover:text-[#33353f] transition text-xs font-medium">
                         <ArrowLeft className="w-4 h-4" />
                         <span>Back to profile</span>
                     </Link>

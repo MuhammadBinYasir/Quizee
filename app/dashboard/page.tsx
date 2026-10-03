@@ -22,5 +22,10 @@ export default async function DashboardPage() {
   // Fetch quizzes created by this user from MongoDB
   const quizzes = await fetchUserQuizzes({ userId: String(authUser._id) });
 
-  return <DashboardClient user={userData} quizzes={quizzes} />;
+
+  const serializedUser = JSON.parse(JSON.stringify(userData));
+
+  const serializedQuizzes = JSON.parse(JSON.stringify(quizzes));
+
+  return <DashboardClient user={serializedUser} quizzes={serializedQuizzes} />;
 }

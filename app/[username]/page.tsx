@@ -21,9 +21,10 @@ export const dynamic = "force-dynamic";
 export default async function PublicProfilePage({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const result = await fetchUserWithUsername({ username: params.username });
+  const { username } = await params;
+  const result = await fetchUserWithUsername({ username });
   const authUser = await getCurrentUser();
 
   if (result === "404" || !result?.user) {
@@ -40,7 +41,7 @@ export default async function PublicProfilePage({
             User Not Found
           </h1>
           <p className="text-xs text-[#82838c] mt-2">
-            No profile exists with the username @{params.username}.
+            No profile exists with the username @{username}.
           </p>
           <Link
             href="/"
@@ -289,7 +290,7 @@ export default async function PublicProfilePage({
                       </span>
 
                       <Link
-                        href={`/${params.username}/${quiz._id}`}
+                        href={`/${username}/${quiz._id}`}
                         className="h-8 px-4 rounded-xl bg-[#8279a9] hover:bg-[#746b9a] text-white text-xs font-semibold inline-flex items-center gap-1.5 transition shadow-xs"
                       >
                         <span>Start Quiz</span>

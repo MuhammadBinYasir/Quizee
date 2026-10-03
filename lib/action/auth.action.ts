@@ -35,7 +35,7 @@ export async function loginAction(formData: { identifier?: string; password?: st
       username: user.username,
     });
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set(AUTH_COOKIE_NAME, token, authCookieOptions.options);
 
     return {
@@ -109,7 +109,7 @@ export async function signupAction(formData: {
       username: newUser.username,
     });
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set(AUTH_COOKIE_NAME, token, authCookieOptions.options);
 
     return {
@@ -129,7 +129,7 @@ export async function signupAction(formData: {
 }
 
 export async function logoutAction() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.set(AUTH_COOKIE_NAME, "", {
     httpOnly: true,
     expires: new Date(0),
@@ -140,7 +140,7 @@ export async function logoutAction() {
 
 export async function getSessionUserAction() {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     if (!token) return null;
 
