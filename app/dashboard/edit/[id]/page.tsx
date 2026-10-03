@@ -20,20 +20,20 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         return (
             <Dashboardlay title="Quiz Not Found" desc="We couldn't find the quiz you requested.">
                 <div className="bg-white p-8 rounded-2xl border border-[#e3e3e0] text-center text-sm text-[#7f808a]">
-                    No quiz found with ID: {params.id}
+                    No quiz found with ID: {id}
                 </div>
             </Dashboardlay>
         );
     }
 
-    if (quiz.userId._id.toString() !== user._id.toString()) { 
+    if (quiz.userId._id.toString() !== user._id.toString()) {
         return (
             <Dashboardlay title="Unauthorized" desc="You do not have permission to edit this quiz.">
                 <div className="bg-white p-8 rounded-2xl border border-red-200 text-center text-sm text-red-600">
                     You can only edit quizzes you created.
                 </div>
             </Dashboardlay>
-        ); 
+        );
     }
 
     const userData = {
@@ -52,15 +52,15 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             ans: q.ans
         })),
     };
-    
+
     const flattenedTakens = (quiz.takens || []).flat();
     const AnalData = flattenedTakens.map((taken: any) => ({
         id: taken._id,
-        username: taken.userId?.username || "Unknown", 
+        username: taken.userId?.username || "Unknown",
         title: taken.userId?.name || "Unknown",
         obtained: taken.obtained,
         total: taken.total,
-        percentage: Number(((taken.obtained / taken.total) * 100).toFixed(2)), 
+        percentage: Number(((taken.obtained / taken.total) * 100).toFixed(2)),
     }));
 
     return (

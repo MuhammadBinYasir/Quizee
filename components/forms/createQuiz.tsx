@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Plus,
@@ -13,6 +13,7 @@ import {
   Globe,
   Lock,
   Layers,
+  Upload,
 } from "lucide-react";
 import { createQuiz, updateQuiz } from "@/lib/action/quiz.action";
 
@@ -69,6 +70,36 @@ export default function CreateQuiz({ user, data }: CreateQuizProps) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleJSONUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string);
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.desc) setDesc(parsed.desc);
+        if (parsed.category) setCategory(parsed.category);
+        if (parsed.visibility) setVisibility(parsed.visibility);
+        if (Array.isArray(parsed.questions)) {
+          setQuestions(
+            parsed.questions.map((q: any) => ({
+              question: q.question || "",
+              options: Array.isArray(q.options) ? q.options : ["", "", "", ""],
+              ans: q.ans || "1",
+            }))
+          );
+        }
+      } catch (err) {
+        setError("Invalid JSON file.");
+      }
+    };
+    reader.readAsText(file);
+    // Reset the input so the same file can be re-uploaded
+    e.target.value = "";
+  };
 
   const handleAddQuestion = () => {
     setQuestions((prev) => [
@@ -301,6 +332,76 @@ export default function CreateQuiz({ user, data }: CreateQuizProps) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* =====================================================
+          IMPORT FROM JSON
+      ===================================================== */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-[#eeeeeb]">
+          <Upload className="w-4 h-4 text-[#8279a9]" />
+          <h2 className="font-display font-bold text-base text-[#353640]">
+            Import from JSON
+          </h2>
+        </div>
+
+        <p className="text-xs text-[#7d7f8a]">
+          Upload a <code className="bg-[#f0eef6] text-[#8279a9] px-1.5 py-0.5 rounded font-mono text-[11px]">.json</code> file matching the format below to bulk-import your quiz data.
+        </p>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="h-10 px-4 rounded-xl bg-[#8279a9] text-white text-xs font-semibold inline-flex items-center gap-2 hover:bg-[#746b9a] active:scale-[0.97] transition shadow-xs"
+          >
+            <Upload className="w-4 h-4" />
+            Choose JSON File
+          </button>
+          <input
+            type="file"
+            accept=".json"
+            ref={fileInputRef}
+            onChange={handleJSONUpload}
+            className="hidden"
+          />
+        </div>
+
+        <details className="group">
+          <summary className="cursor-pointer text-xs font-semibold text-[#8279a9] select-none hover:underline">
+            View sample JSON format
+          </summary>
+          <pre className="mt-2 p-4 rounded-xl border border-[#e3e3e0] bg-[#fafaf8] text-[11px] font-mono text-[#525460] overflow-x-auto leading-relaxed">
+{`{
+  "title": "Introduction to Physics",
+  "desc": "Test your knowledge of Newton's Laws",
+  "category": "Science",
+  "visibility": "public",
+  "questions": [
+    {
+      "question": "What is Newton's first law?",
+      "options": [
+        "Law of Inertia",
+        "Law of Acceleration",
+        "Law of Reaction",
+        "Law of Gravity"
+      ],
+      "ans": "1"
+    },
+    {
+      "question": "F = ma is which law?",
+      "options": [
+        "First Law",
+        "Second Law",
+        "Third Law",
+        "Zeroth Law"
+      ],
+      "ans": "2"
+    }
+  ]
+}`}
+          </pre>
+        </details>
       </div>
 
       {/* =====================================================
