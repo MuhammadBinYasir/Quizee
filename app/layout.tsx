@@ -5,7 +5,10 @@ import "./globals.css";
 const font = Poppins({ subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "Quizee - Interactive Quiz Platform",
+  title: {
+    default: "Quizee - Interactive Quiz Platform",
+    template: "%s | Quizee",
+  },
   description: "Create, take, and share interactive quizzes seamlessly.",
 };
 

@@ -9,7 +9,7 @@ import LoadBar from "@/components/reusable/LoadBar";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Dashboard | Quizee",
+  title: "Dashboard",
   description: "Manage your quizzes and track performance with Quizee.",
 };
 

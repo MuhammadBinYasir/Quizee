@@ -13,8 +13,34 @@ import {
   ArrowLeft,
   ShieldCheck,
 } from 'lucide-react';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ username: string; id: string }>;
+}): Promise<Metadata> {
+    const { id } = await params;
+    try {
+        const quiz = await fetchQuiz({ id });
+        if (!quiz) {
+            return {
+                title: 'Quiz Not Found',
+                description: 'The requested quiz could not be found.',
+            };
+        }
+        return {
+            title: quiz.title || 'Take Quiz',
+            description: quiz.desc || 'Take this interactive quiz on Quizee.',
+        };
+    } catch {
+        return {
+            title: 'Take Quiz',
+        };
+    }
+}
 
 const page = async ({ params }: { params: Promise<{ username: string; id: string }> }) => {
     const { username, id } = await params;
