@@ -3,8 +3,14 @@ import Dashboardlay from '@/components/reusable/Dashboardlay';
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import React from 'react';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+    title: 'Account Settings',
+    description: 'Update your profile information, bio, and social links.',
+};
 
 const page = async () => {
     const user = await getCurrentUser();

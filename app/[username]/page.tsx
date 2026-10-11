@@ -15,8 +15,37 @@ import {
 } from "lucide-react";
 import { fetchUserWithUsername } from "@/lib/action/user.action";
 import { getCurrentUser } from "@/lib/auth";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}): Promise<Metadata> {
+  const { username } = await params;
+  try {
+    const result = await fetchUserWithUsername({ username });
+    if (result === "404" || !result?.user) {
+      return {
+        title: "User Not Found",
+        description: `No profile found for @${username} on Quizee.`,
+      };
+    }
+    const name = result.user.name || username;
+    return {
+      title: `${name} (@${username})`,
+      description:
+        result.user.desc ||
+        `Explore interactive quizzes created and shared by ${name} on Quizee.`,
+    };
+  } catch {
+    return {
+      title: `@${username}`,
+    };
+  }
+}
 
 export default async function PublicProfilePage({
   params,

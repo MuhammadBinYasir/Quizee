@@ -4,11 +4,37 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetchQuiz } from '@/lib/action/quiz.action';
 import { getCurrentUser } from '@/lib/auth';
 import React from 'react';
+import type { Metadata } from 'next';
 import { columns } from "@/components/tables/userTakens/colums";
 import { DataTable } from "@/components/tables/userTakens/data-table";
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+    const { id } = await params;
+    try {
+        const quiz = await fetchQuiz({ id });
+        if (!quiz) {
+            return {
+                title: 'Edit Quiz',
+                description: 'Quiz editor on Quizee.',
+            };
+        }
+        return {
+            title: `Edit: ${quiz.title}`,
+            description: quiz.desc || 'Edit and manage your quiz questions.',
+        };
+    } catch {
+        return {
+            title: 'Edit Quiz',
+        };
+    }
+}
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

@@ -5,8 +5,14 @@ import { DataTable } from "@/components/tables/userTakens/data-table";
 import { fetchUser } from '@/lib/action/user.action';
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+    title: 'Taken Quizzes',
+    description: 'Track and review your past quiz performances, total questions, and scores.',
+};
 
 const page = async () => {
     const user = await getCurrentUser();

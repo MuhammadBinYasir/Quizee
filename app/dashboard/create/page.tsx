@@ -3,8 +3,14 @@ import Dashboardlay from '@/components/reusable/Dashboardlay';
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import React from 'react';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+    title: 'Create Quiz',
+    description: 'Design and publish a new interactive quiz with multiple-choice questions.',
+};
 
 const page = async () => {
     const user = await getCurrentUser();
