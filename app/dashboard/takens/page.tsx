@@ -15,14 +15,18 @@ const page = async () => {
     const fetchData = await fetchUser({ userId: String(user._id) });
     if (fetchData === "no-user") return null;
 
-    const data = (fetchData.user.takens || []).map((taken: any) => ({
-        id: taken.quizId?._id.toString(),
-        username: taken.quizId?.userId?.username || "Unknown",
-        title: taken.quizId?.title || "Untitled Quiz",
-        obtained: taken.obtained,
-        total: taken.total,
-        percentage: Number(((taken.obtained / taken.total) * 100).toFixed(2)),
-    }));
+    const data = (fetchData.user.takens || [])
+        .map((taken: any) => ({
+            id: taken.quizId?._id ? String(taken.quizId._id) : String(taken._id || Math.random()),
+            username: taken.quizId?.userId?.username || "Unknown",
+            title: taken.quizId?.title || "Untitled Quiz",
+            obtained: taken.obtained,
+            total: taken.total,
+            percentage: Number(
+                ((taken.obtained / (taken.total || 1)) * 100).toFixed(2)
+            ),
+        }))
+        .reverse();
 
     return (
         <Dashboardlay

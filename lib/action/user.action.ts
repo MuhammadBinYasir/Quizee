@@ -90,17 +90,27 @@ export const updateTakens = async ({
 }) => {
   try {
     const quiz = await fetchQuiz({ id: quizId });
-    const newAttempts = quiz.takens.length + 1;
-    const newRatio = (quiz.ratio + (obtained / total) * 100) / newAttempts;
+    if (!quiz) return;
+
+    const existingTakens = Array.isArray(quiz.takens) ? quiz.takens.flat() : [];
+    const newAttempts = existingTakens.length + 1;
+    const currentScore = total > 0 ? (obtained / total) * 100 : 0;
+    const totalScoreSum =
+      existingTakens.reduce(
+        (sum: number, t: any) =>
+          sum + (t.total > 0 ? (t.obtained / t.total) * 100 : 0),
+        0
+      ) + currentScore;
+    const newRatio = Math.round(totalScoreSum / newAttempts);
+
     const res = await User.findByIdAndUpdate(userId, {
       $push: { takens: { quizId, total, obtained } },
-      ratio: newRatio,
-      attempts: newAttempts,
     });
     if (res) {
       try {
         await QuizModel.findByIdAndUpdate(quizId, {
           $push: { takens: { userId, total, obtained } },
+          $set: { attempts: newAttempts, ratio: newRatio },
         });
         return "ok";
       } catch (error) {

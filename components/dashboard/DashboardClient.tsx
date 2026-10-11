@@ -31,6 +31,7 @@ interface QuizItem {
   questions?: any[];
   total?: number;
   createdAt?: string;
+  takens?: any[];
 }
 
 interface UserData {
@@ -72,20 +73,72 @@ export default function DashboardClient({
     ),
   ];
 
+  // Helper to extract attempts for a quiz accurately
+  const getQuizAttempts = (q: QuizItem): number => {
+    const takens = Array.isArray(q.takens) ? q.takens.flat() : [];
+    if (takens.length > 0) return takens.length;
+    return Number(q.attempts) || 0;
+  };
+
+  // Helper to extract average score for a quiz accurately
+  const getQuizAvgScore = (q: QuizItem): number => {
+    const takens = Array.isArray(q.takens) ? q.takens.flat() : [];
+    if (takens.length > 0) {
+      const sum = takens.reduce(
+        (acc: number, t: any) =>
+          acc + (t.total ? (t.obtained / t.total) * 100 : 0),
+        0
+      );
+      return Math.round(sum / takens.length);
+    }
+    if (q.ratio !== undefined && q.ratio !== null && Number(q.ratio) > 0) {
+      return Math.round(Number(q.ratio));
+    }
+    return 0;
+  };
+
   // Stats calculation
   const totalQuizzes = quizzes.length;
-  const totalAttempts = quizzes.reduce(
-    (acc, q) => acc + (Number(q.attempts) || 0),
+  const totalQuestionsCreated = quizzes.reduce(
+    (acc, q) => acc + (q.questions?.length || q.total || 0),
     0
   );
+  const totalAttempts = quizzes.reduce(
+    (acc, q) => acc + getQuizAttempts(q),
+    0
+  );
+
+  // Participant average across all participant attempts on user's quizzes
+  let allParticipantScoresSum = 0;
+  let allParticipantScoresCount = 0;
+  quizzes.forEach((q) => {
+    const takens = Array.isArray(q.takens) ? q.takens.flat() : [];
+    if (takens.length > 0) {
+      takens.forEach((t: any) => {
+        allParticipantScoresSum += t.total ? (t.obtained / t.total) * 100 : 0;
+        allParticipantScoresCount += 1;
+      });
+    } else if (Number(q.attempts) > 0 && Number(q.ratio) > 0) {
+      allParticipantScoresSum += Number(q.ratio) * Number(q.attempts);
+      allParticipantScoresCount += Number(q.attempts);
+    }
+  });
+
   const avgPerformance =
-    totalQuizzes > 0
-      ? Math.round(
-          quizzes.reduce((acc, q) => acc + (Number(q.ratio) || 0), 0) /
-            totalQuizzes
-        )
+    allParticipantScoresCount > 0
+      ? Math.round(allParticipantScoresSum / allParticipantScoresCount)
       : 0;
-  const totalTakens = user.takens?.length || 0;
+
+  // User's own quiz-taking statistics
+  const userTakensList = user.takens || [];
+  const totalTakens = userTakensList.length;
+  const userScoreSum = userTakensList.reduce(
+    (acc: number, t: any) =>
+      acc + (t.total ? (t.obtained / t.total) * 100 : 0),
+    0
+  );
+  const userAvgScore =
+    totalTakens > 0 ? Math.round(userScoreSum / totalTakens) : 0;
 
   // Filter quizzes
   const filteredQuizzes = quizzes.filter((q) => {
@@ -163,7 +216,9 @@ export default function DashboardClient({
             <p className="font-display text-2xl sm:text-3xl font-bold text-[#353640]">
               {totalQuizzes}
             </p>
-            <p className="text-xs text-[#90919a] mt-0.5">Quizzes created</p>
+            <p className="text-xs text-[#90919a] mt-0.5">
+              {totalQuestionsCreated} {totalQuestionsCreated === 1 ? "question" : "questions"} created
+            </p>
           </div>
         </div>
 
@@ -181,7 +236,9 @@ export default function DashboardClient({
             <p className="font-display text-2xl sm:text-3xl font-bold text-[#353640]">
               {totalAttempts}
             </p>
-            <p className="text-xs text-[#90919a] mt-0.5">Total attempts</p>
+            <p className="text-xs text-[#90919a] mt-0.5">
+              {totalAttempts === 1 ? "Participant attempt" : "Total attempts received"}
+            </p>
           </div>
         </div>
 
@@ -197,9 +254,13 @@ export default function DashboardClient({
           </div>
           <div className="mt-4">
             <p className="font-display text-2xl sm:text-3xl font-bold text-[#353640]">
-              {avgPerformance}%
+              {allParticipantScoresCount > 0 ? `${avgPerformance}%` : "—"}
             </p>
-            <p className="text-xs text-[#90919a] mt-0.5">Participant average</p>
+            <p className="text-xs text-[#90919a] mt-0.5">
+              {allParticipantScoresCount > 0
+                ? "Participant average"
+                : "No submissions yet"}
+            </p>
           </div>
         </div>
 
@@ -217,7 +278,11 @@ export default function DashboardClient({
             <p className="font-display text-2xl sm:text-3xl font-bold text-[#353640]">
               {totalTakens}
             </p>
-            <p className="text-xs text-[#90919a] mt-0.5">Quizzes taken</p>
+            <p className="text-xs text-[#90919a] mt-0.5">
+              {totalTakens > 0
+                ? `${userAvgScore}% your avg score`
+                : "Quizzes taken"}
+            </p>
           </div>
         </div>
       </section>
@@ -313,8 +378,8 @@ export default function DashboardClient({
           {/* Quiz Cards */}
           {filteredQuizzes.map((quiz) => {
             const isCopied = copiedId === quiz._id;
-            const avg = Number(quiz.ratio) || 0;
-            const attemptsCount = Number(quiz.attempts) || 0;
+            const attemptsCount = getQuizAttempts(quiz);
+            const avg = getQuizAvgScore(quiz);
             const questionsCount = quiz.questions?.length || quiz.total || 0;
 
             return (
@@ -355,18 +420,28 @@ export default function DashboardClient({
                 {/* Score & Metrics */}
                 <div className="mt-4 pt-3.5 border-t border-[#eeeeec]">
                   <div className="flex items-center justify-between text-[11px] text-[#8a8b94] mb-2">
-                    <span>{questionsCount} questions</span>
-                    <span>{attemptsCount} attempts</span>
+                    <span>
+                      {questionsCount} {questionsCount === 1 ? "question" : "questions"}
+                    </span>
+                    <span>
+                      {attemptsCount} {attemptsCount === 1 ? "attempt" : "attempts"}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between mb-1 text-[10px]">
                     <span className="text-[#a0a1aa]">Average Score</span>
-                    <span className="font-semibold text-[#3b3d47]">{avg}%</span>
+                    <span className="font-semibold text-[#3b3d47]">
+                      {attemptsCount > 0 ? `${avg}%` : "No attempts yet"}
+                    </span>
                   </div>
                   <div className="h-1.5 rounded-full bg-[#eeeeec] overflow-hidden">
                     <div
                       className="h-full rounded-full bg-[#8279a9] transition-all duration-500"
-                      style={{ width: `${Math.min(100, Math.max(0, avg))}%` }}
+                      style={{
+                        width: `${
+                          attemptsCount > 0 ? Math.min(100, Math.max(0, avg)) : 0
+                        }%`,
+                      }}
                     />
                   </div>
 
@@ -468,16 +543,20 @@ export default function DashboardClient({
           </div>
 
           <div className="space-y-2.5">
-            {user.takens.slice(0, 4).map((taken: any, idx: number) => {
+            {[...user.takens].reverse().slice(0, 4).map((taken: any, idx: number) => {
               const quizInfo = taken.quizId;
               const percent = taken.total
                 ? Math.round((taken.obtained / taken.total) * 100)
                 : 0;
+              const quizOwner = quizInfo?.userId?.username;
+              const quizHref = quizInfo?._id
+                ? `/${quizOwner || user.username}/${quizInfo._id}`
+                : null;
 
               return (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#fafaf8] border border-[#eeeeec] hover:border-[#dcd9e8] transition"
+                  className="flex items-center justify-between p-3.5 rounded-xl bg-[#fafaf8] border border-[#eeeeec] hover:border-[#dcd9e8] transition"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-[#eeecf5] text-[#8279a9] flex items-center justify-center font-bold text-xs shrink-0">
@@ -488,7 +567,10 @@ export default function DashboardClient({
                         {quizInfo?.title || "Quiz Assessment"}
                       </p>
                       <p className="text-[10px] text-[#8d8e96]">
-                        Score: {taken.obtained} / {taken.total} points
+                        Score: {taken.obtained} / {taken.total} points •{" "}
+                        {taken.obtained === taken.total
+                          ? "Perfect Score!"
+                          : `${percent}% correct`}
                       </p>
                     </div>
                   </div>
@@ -505,6 +587,14 @@ export default function DashboardClient({
                     >
                       {percent}%
                     </span>
+                    {quizHref && (
+                      <Link
+                        href={quizHref}
+                        className="text-[11px] font-semibold text-[#8279a9] hover:underline hidden sm:inline"
+                      >
+                        Retake
+                      </Link>
+                    )}
                   </div>
                 </div>
               );
