@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 /* =========================================================
@@ -507,7 +508,7 @@ export default function QuizeeLanding() {
             </div>
 
             <a
-              href="/sign-in"
+              href="/login"
               className="inline-flex items-center gap-2 rounded-lg bg-[#30323c] px-4 py-2.5 text-[12px] font-medium text-white hover:bg-[#41434e] transition-colors"
             >
               Sign in
@@ -556,7 +557,7 @@ export default function QuizeeLanding() {
             <Reveal delay={200}>
               <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-3">
                 <a
-                  href="/sign-in"
+                  href="/login"
                   className="w-full sm:w-auto h-11 px-6 rounded-lg bg-[#8279a9] text-white text-[13px] font-medium inline-flex items-center justify-center gap-2 hover:bg-[#746b9a] transition-colors shadow-sm"
                 >
                   Create a quiz
@@ -893,7 +894,7 @@ export default function QuizeeLanding() {
               </p>
 
               <a
-                href="/sign-in"
+                href="/login"
                 className="mt-8 inline-flex h-11 px-6 items-center gap-2 rounded-lg bg-[#30323c] text-white text-[13px] font-medium hover:bg-[#41434e] transition-colors"
               >
                 Get started
@@ -936,12 +937,12 @@ export default function QuizeeLanding() {
                 How it works
               </a>
 
-              <a
-                href="/sign-in"
+              <Link
+                href="/login"
                 className="hover:text-[#4e505b] transition-colors"
               >
                 Sign in
-              </a>
+              </Link>
             </div>
 
             <p className="text-[11px] text-[#a0a1a8]">

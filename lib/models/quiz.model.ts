@@ -52,10 +52,10 @@ const QuizSchema = new Schema({
         type: Number,
         required: true,
     },
-    takens: [{
+    takens: {
         type: [Takens],
         default: [],
-    }],
+    },
     visibility: {
         type: String,
         enum: ["public", "private"],

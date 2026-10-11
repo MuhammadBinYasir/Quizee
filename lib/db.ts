@@ -1,16 +1,51 @@
-// lib/mongoose.js
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: MongooseCache | undefined;
+}
+
+let cached = global.mongooseCache;
+
+if (!cached) {
+  cached = global.mongooseCache = { conn: null, promise: null };
+}
+
 async function connectToDatabase() {
-  // try {
-  //   await mongoose.connect(MONGODB_URI || "");
-  //   console.log('Connected to MongoDB');
-  // } catch (error) {
-  //   console.error('Error connecting to MongoDB:', error);
-  //   process.exit(1); // Exit the process with an error code
-  // }
+  const uri = process.env.MONGODB_URI || MONGODB_URI;
+  if (!uri) {
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  }
+
+  if (cached!.conn) {
+    return cached!.conn;
+  }
+
+  if (!cached!.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+
+    cached!.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
+      return mongooseInstance;
+    });
+  }
+
+  try {
+    cached!.conn = await cached!.promise;
+  } catch (e) {
+    cached!.promise = null;
+    throw e;
+  }
+
+  return cached!.conn;
 }
 
 export default connectToDatabase;
